@@ -4,6 +4,7 @@ from sdfpy import circle_sdf, square_sdf, union
 from sdfsampler import DataGenerator
 from sdfpytorch import DeepSDF, fit
 from nsdf_csg_losses import csg_combined_loss
+from clearml import Task
 
 #+------------------------------------------------------------------------+#
 #|                        ~~~~~~HYPERPARAMS ~~~~~~                        |#
@@ -18,6 +19,7 @@ reuse_data_epochs 	= 20
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #+------------------------------------------------------------------------+#
+task = Task.init(project_name='csvg', task_name='ex_csg')
 
 hyper_params_dict = {"epochs": epochs, "step_size": step_size, "report": report, "save": save, "device": device, "reuse_data_epochs": reuse_data_epochs}
 samp_hyper_params_dict = {"NUM_PTS": batch_size, "gaussian_sigma": samp_sigma, "percent_ambient": samp_amb_percent}
