@@ -1,6 +1,13 @@
 import pickle, sys, time, datetime
 import torch
 from torch import nn
+try:
+    from clearml import Task
+    CLEARML_FOUND=True
+	# get the current Task 
+
+except: 
+    CLEARML_FOUND=False 
 
 class DeepSDF(nn.Module):
 	def __init__(self, num_layers, hidden_size, n_dim=2, activation=nn.ReLU):
@@ -21,7 +28,7 @@ class DeepSDF(nn.Module):
 		return out
 
 
-def fit(model, loss_fn, data_generator, name, device='cpu', reuse_data_epochs=10, step_size=1e-4, epochs=10000, report=1000, save=1000):
+def fit(model, loss_fn, data_generator, name, device='cpu', reuse_data_epochs=10, step_size=1e-4, epochs=10000, report=1000, save=1000,logger:"clearml.Task"=None):
 	print(f'Training {name} for {epochs} epochs on {device}')
 
 	optim = torch.optim.Adam(model.parameters(), lr=step_size)
@@ -45,8 +52,13 @@ def fit(model, loss_fn, data_generator, name, device='cpu', reuse_data_epochs=10
 
 			col_width = 15
 			print(f'Epoch {i}:'.ljust(col_width), 'loss'.ljust(col_width), {losses[-1][1]})
+			if CLEARML_FOUND:
+				logger.report_scalar(title="loss",series="loss",value=losses[-1][1],iteration=i)
+				
 			print(''.ljust(col_width), 'itemized loss'.ljust(col_width), [l.item() for l in loss_items])
-
+			if CLEARML_FOUND:
+				for idx,loss_item in enumerate(loss_items):
+					logger.report_scalar(title="loss",series=f"loss_{idx}",value=loss_item.item(),iteration=i)
 			elapsed = time.time() - start 
 			est_time = (elapsed * epochs)/(i+1) - elapsed
 			print(''.ljust(col_width), 'pred time left'.ljust(col_width), str(datetime.timedelta(seconds=round(est_time))))
