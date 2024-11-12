@@ -20,7 +20,7 @@ will only need to install pytorch there.
 To train networks for example CSG and SV problems, run either `ex_csg.py` or `ex_sv.py`—you will likely want to train these on a GPU. The results of these are also precomputed, and can be found in the `models/` and `data/` folders. Results can be visualized using `viz_ex.py`. For example, run either:
 
 ```
-python3 viz_ex.py swept_star -1.05 2.05 -0.9 2.2
+python3 viz_ex.py swept_star -1.05 2.05 -0.9 2.2 -s  # -s for saving the file
 python3 viz_ex.py circle_square_union
 ```
 

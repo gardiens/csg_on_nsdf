@@ -9,7 +9,7 @@ from clearml import Task
 #+------------------------------------------------------------------------+#
 #|                        ~~~~~~HYPERPARAMS ~~~~~~                        |#
 batch_size 			= 50000
-epochs 				= 600000
+epochs 				= 33000 #! Changed here 
 report 				= 1000
 save   				= epochs
 step_size 			= 1e-4

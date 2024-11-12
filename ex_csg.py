@@ -9,17 +9,24 @@ from clearml import Task
 #+------------------------------------------------------------------------+#
 #|                        ~~~~~~HYPERPARAMS ~~~~~~                        |#
 batch_size 			= 50000
-epochs 				= 400000
-report 				= 1000
+epochs 				= 291000 #! Changed w.r.t to intial  
+report 				= 1000 
 save   				= epochs
 step_size 			= 1e-4
 samp_sigma 			= 1e-2
 samp_amb_percent 	= 0.5
 reuse_data_epochs 	= 20
+from argparse import ArgumentParser, Namespace
+import sys
+parser=ArgumentParser(description="Training script parameters")
+parser.add_argument("--name", type=str, default = "circle_square_union")
+parser.add_argument('--lambda_loss', nargs='+', type=int,default=(15,1,1))
 
+args = parser.parse_args(sys.argv[1:])
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 #+------------------------------------------------------------------------+#
-task = Task.init(project_name='csvg', task_name='ex_csg')
+print("the name is ",args.name)
+task = Task.init(project_name='csvg', task_name=args.name)
 
 hyper_params_dict = {"epochs": epochs, "step_size": step_size, "report": report, "save": save, "device": device, "reuse_data_epochs": reuse_data_epochs}
 samp_hyper_params_dict = {"NUM_PTS": batch_size, "gaussian_sigma": samp_sigma, "percent_ambient": samp_amb_percent}
@@ -37,10 +44,11 @@ data_gen = lambda model: DG.and_input_eval(DG.importance_and_stratified(model, u
 model = DeepSDF(8, 128, n_dim=2).to(device)
 
 # 4. Define the loss function
-loss_fn = csg_combined_loss(300, (15, 1, 1), dim=2)
+print("lambda_loss",args.lambda_loss)
+loss_fn = csg_combined_loss(300,args.lambda_loss, dim=2)
 
 # 5. Train! 
-test_name = "circle_square_union"
+test_name = args.name
 fit(model, loss_fn, data_gen, test_name, **hyper_params_dict)
  
 # 6. After training, visualize the results by running `python3 viz_ex.py circle_square_union` in the command line!
